@@ -20,7 +20,7 @@ struct MessageBody {
     node_id: String,
 
     #[serde(default)]
-    echo: String,
+    id: String,
 }
 
 #[derive(Default, Serialize, Deserialize, Debug)]
@@ -33,6 +33,8 @@ struct Message {
 #[tokio::main]
 async fn  main() -> io::Result<()> {
     let mut node: Node = Default::default();
+
+    let mut id = 0;
 
     loop {
         let mut buffer = String::new();
@@ -49,9 +51,11 @@ async fn  main() -> io::Result<()> {
                 node.id = body.node_id;
                 reply.msg_type = "init_ok".to_string();
             },
-            "echo" => {
-                reply.msg_type = "echo_ok".to_string();
-                reply.echo = body.echo;
+            "generate" => {
+                reply.msg_type = "generate_ok".to_string();
+                id += 1;
+                // Pretty lame but it works
+                reply.id = format!("{}-{:?}", node.id, id);
             },
             _ => {
                 eprintln!("Unknown message type: {}", body.msg_type);
